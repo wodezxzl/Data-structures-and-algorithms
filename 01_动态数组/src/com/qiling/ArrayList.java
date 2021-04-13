@@ -1,6 +1,5 @@
 package com.qiling;
 
-import java.util.Arrays;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
 public class ArrayList<E> {
