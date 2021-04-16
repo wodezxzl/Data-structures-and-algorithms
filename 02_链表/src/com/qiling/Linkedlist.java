@@ -3,6 +3,11 @@ package com.qiling;
 public  class Linkedlist<E> extends AbstractList<E>{
     private Node<E> first;
 
+    // 利用构造方法添加一个虚拟头结点, 有便于一些操作
+    public Linkedlist() {
+        first = new Node<>(null,  null);
+    }
+
     private static class Node<E>{
         E element;
         Node<E> next;
@@ -48,7 +53,7 @@ public  class Linkedlist<E> extends AbstractList<E>{
     public void add(int index, E element) {
         rangeCheckForAdd(index);
 
-        if(index == 0) {
+        /*if(index == 0) {
             // 为o时需要特殊处理(0 - 1 = -1)
             // 新节点的next指向为first的指向, 为null或者节点
             // first指向新节点
@@ -59,7 +64,13 @@ public  class Linkedlist<E> extends AbstractList<E>{
             // 前一个节点next指向新节点
             // 新节点next指向为前一个节点的next
             prevNode.next = new Node<>(element, prevNode.next);
-        }
+        }*/
+
+        // !使用虚拟头结点之后
+        // !如果index为0时返回虚拟头结点, 这样在0位置插入元素时就和在其他位置插入逻辑一样了
+        Node<E> prevNode = index == 0 ? first : getNode(index - 1);
+        prevNode.next = new Node<>(element, prevNode.next);
+
         size++;
     }
 
@@ -76,15 +87,21 @@ public  class Linkedlist<E> extends AbstractList<E>{
         rangeCheck(index);
 
         // 要被删除的元素, 初始为first节点
-        Node<E> node = first;
+        // Node<E> node = first;
 
-        if (index == 0) {
+        /*if (index == 0) {
             first = first.next;
         } else {
             Node<E> prevNode = getNode(index - 1);
             node = prevNode.next;
             prevNode.next = prevNode.next.next;
-        }
+        }*/
+
+        // !使用虚拟头结点之后
+        Node<E> prevNode = index == 0 ? first : getNode(index - 1);
+        Node<E>  node = prevNode.next;
+        prevNode.next = prevNode.next.next;
+
         size--;
         return node.element;
     }
@@ -123,7 +140,8 @@ public  class Linkedlist<E> extends AbstractList<E>{
         rangeCheck(index);
 
         // 获得第一个节点, 然后从前向后找到index位置节点
-        Node<E> node = first;
+        // !由于增加了虚拟头结点, 需要从first.next开始获取
+        Node<E> node = first.next;
         for (int i = 0; i < index; i++) {
             node = node.next;
         }
@@ -136,7 +154,7 @@ public  class Linkedlist<E> extends AbstractList<E>{
         StringBuilder str = new StringBuilder();
 
         str.append("size = ").append(size).append(", [");
-        Node<E> node = first;
+        Node<E> node = first.next;
         for (int i = 0; i < size; i++) {
             // 先拼接逗号再拼接元素
             if (i != 0) {
