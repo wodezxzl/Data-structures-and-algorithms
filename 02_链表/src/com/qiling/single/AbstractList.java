@@ -1,4 +1,4 @@
-package com.qiling;
+package com.qiling.single;
 
 // 抽象类可以不全部实现接口中的方法
 // 使用AbstractList是因为Arraylist和LinkedList还是有一些公共代码的, 可以抽取出来
