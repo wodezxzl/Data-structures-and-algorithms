@@ -1,18 +1,20 @@
-package com.qiling.doubleLinked;
+package com.qiling;
 
-public class DoubleLinkedlist<E> extends AbstractList<E> {
+public  class Linkedlist<E> extends AbstractList<E> {
     private Node<E> first;
-    private Node<E> last;
+
+    // 利用构造方法添加一个虚拟头结点, 有便于一些操作
+    public Linkedlist() {
+        first = new Node<>(null,  null);
+    }
 
     private static class Node<E>{
         E element;
         Node<E> next;
-        Node<E> prev;
 
-        public Node(E element, Node<E> next, Node<E> prev) {
+        public Node(E element, Node<E> next) {
             this.element = element;
             this.next = next;
-            this.prev = prev;
         }
     }
 
@@ -21,7 +23,6 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
     public void clear() {
         size = 0;
         first = null;
-        last = null;
     }
 
     //获取index位置的节点值
@@ -52,39 +53,25 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
     public void add(int index, E element) {
         rangeCheckForAdd(index);
 
-        if (index == size) {
-            // 往最后(size处, elements.length)处添加元素
-            Node<E> oldLast = last;
-
-            // 它的prev应该指向之前的last
-            last = new Node<>(element, null, oldLast);
-
-            if (oldLast == null) {
-                // 链表添加的第一个元素
-                // first和last都指向新添加的节点
-                // 由于前面的逻辑此时prev, last都为null
-                first = last;
-            } else {
-                // 之前最后一个元素的next指向新添加的元素
-                oldLast.next = last;
-            }
+        /*if(index == 0) {
+            // 为o时需要特殊处理(0 - 1 = -1)
+            // 新节点的next指向为first的指向, 为null或者节点
+            // first指向新节点
+            first = new Node<>(element, first);
         } else {
-            // 要添加元素的上一个节点和下一个节点
-            Node<E> next = getNode(index);
-            Node<E> prev = next.prev;
+            // 先获取要添加位置的前一个节点
+            Node<E> prevNode = getNode(index - 1);
+            // 前一个节点next指向新节点
+            // 新节点next指向为前一个节点的next
+            prevNode.next = new Node<>(element, prevNode.next);
+        }*/
 
-            // 创建新的节点, 确定前后节点的指向
-            Node<E> node = new Node<>(element, prev, next);
+        // !使用虚拟头结点之后
+        // !如果index为0时返回虚拟头结点, 这样在0位置插入元素时就和在其他位置插入逻辑一样了
+        Node<E> prevNode = index == 0 ? first : getNode(index - 1);
+        prevNode.next = new Node<>(element, prevNode.next);
 
-            // 确定前后节点的prev和next指向
-            next.prev = node;
-            if (prev == null) {
-                // index == 0
-                first = node;
-            } else {
-                prev.next = node;
-            }
-        }
+        size++;
     }
 
     /**
@@ -96,24 +83,26 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
      */
     @Override
     public E remove(int index) {
+        // 虽然之后可能在getNode中会调用rangeCheck, 但是删除方法需要在一开始就进行index检查
         rangeCheck(index);
 
-        Node<E> node = getNode(index);
-        Node<E> next = node.next;
-        Node<E> prev = node.prev;
-        // 改变前后两个节点指针就行
-        if (prev == null) { // index == 0
-            first = next;
-        } else {
-            prev.next = next;
-        }
+        // 要被删除的元素, 初始为first节点
+        // Node<E> node = first;
 
-        if (next == null) { // index == size - 1
-            last = prev;
+        /*if (index == 0) {
+            first = first.next;
         } else {
-            next.prev = prev;
-        }
+            Node<E> prevNode = getNode(index - 1);
+            node = prevNode.next;
+            prevNode.next = prevNode.next.next;
+        }*/
 
+        // !使用虚拟头结点之后
+        Node<E> prevNode = index == 0 ? first : getNode(index - 1);
+        Node<E>  node = prevNode.next;
+        prevNode.next = prevNode.next.next;
+
+        size--;
         return node.element;
     }
     public E remove(E element) {
@@ -150,19 +139,13 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
     private Node<E> getNode(int index) {
         rangeCheck(index);
 
-        // 判断所查找的元素在链表的哪一半
-        Node<E> node;
-        if (index < (size << 1)) {
-            node = first;
-            for (int i = 0; i < index; i++) {
-                node = node.next;
-            }
-        } else {
-            node = last;
-            for (int i = size - 1; i > index; i--) {
-                node = node.prev;
-            }
+        // 获得第一个节点, 然后从前向后找到index位置节点
+        // !由于增加了虚拟头结点, 需要从first.next开始获取
+        Node<E> node = first.next;
+        for (int i = 0; i < index; i++) {
+            node = node.next;
         }
+
         return node;
     }
 

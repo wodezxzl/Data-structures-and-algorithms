@@ -1,4 +1,4 @@
-package com.qiling.single;
+package com.qiling;
 
 public interface List<E> {
     int ELEMENT_NOT_FOUND = -1;
