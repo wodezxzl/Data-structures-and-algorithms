@@ -140,6 +140,9 @@ public class ArrayList<E> {
         // 同时注意size应该减少1
         elements[--size] = null;
 
+        // 看是否需要缩容
+        trim();
+
         return oldElement;
     }
     public void remove(E element) {
@@ -209,6 +212,21 @@ public class ArrayList<E> {
             newElements[i] = elements[i];
         }
 
+        elements = newElements;
+    }
+    // 数组缩容
+    private void trim() {
+        int capacity = elements.length;
+        int newCapacity = capacity >> 1;
+        // 剩余元素占总容量大于一半时, 不进行缩容(不能是等于, 不然一直在一半地方不断删除添加会造成复杂度很高)
+        // 或者剩余元素小于等于默认容量时不缩容
+        if (size >= newCapacity || capacity <= DEFAULT_CAPACITY) return;
+
+        // 剩余空间还有很多(缩容一半)
+        E[] newElements = (E[])new Object[newCapacity];
+        for (int i = 0; i < size; i++) {
+            newElements[i] = elements[i];
+        }
         elements = newElements;
     }
 
