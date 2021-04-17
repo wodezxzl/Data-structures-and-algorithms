@@ -1,6 +1,6 @@
 package com.qiling;
 
-public class DoubleLinkedlist<E> extends AbstractList<E> {
+public class CircleDoubleLinkedList<E> extends AbstractList<E>{
     private Node<E> first;
     private Node<E> last;
 
@@ -56,17 +56,23 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
             // 往最后(size处, elements.length)处添加元素
             Node<E> oldLast = last;
 
-            // 它的prev应该指向之前的last
-            last = new Node<>(element, null, oldLast);
+            // !循环双向链表的最后一个节点的头结点为第一个节点
+            last = new Node<>(element, first, oldLast);
 
             if (oldLast == null) {
                 // 链表添加的第一个元素
                 // first和last都指向新添加的节点
                 // 由于前面的逻辑此时prev, last都为null
                 first = last;
+
+                // !循环双向链表多增加操作
+                first.next = first;
+                first.prev = first;
             } else {
                 // 之前最后一个元素的next指向新添加的元素
                 oldLast.next = last;
+                // !循环双向链表多增加操作
+                first.prev = last;
             }
         } else {
             // 要添加元素的上一个节点和下一个节点
@@ -78,12 +84,21 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
 
             // 确定前后节点的prev和next指向
             next.prev = node;
-            if (prev == null) {
+
+            // !循环双向链表多增加操作
+            prev.next = node;
+
+            if (index == 0) {
+                first = node;
+            }
+
+            // prev不可能为null
+            /*if (prev == null) {
                 // index == 0
                 first = node;
             } else {
                 prev.next = node;
-            }
+            }*/
         }
     }
 
@@ -98,11 +113,31 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
     public E remove(int index) {
         rangeCheck(index);
 
-        Node<E> node = getNode(index);
-        Node<E> next = node.next;
-        Node<E> prev = node.prev;
+        Node<E> node = first;
+
+        if (size == 1) {
+            // 只有一个节点时
+            first = null;
+            last = null;
+        } else {
+            node = getNode(index);
+            Node<E> next = node.next;
+            Node<E> prev = node.prev;
+
+            prev.next = next;
+            next.prev = prev;
+
+            if (node == first) {
+                first = next;
+            }
+            if (node == last) {
+                last = prev;
+            }
+        }
+
+        // prev和next都不可能为null
         // 改变前后两个节点指针就行
-        if (prev == null) { // index == 0
+        /*if (prev == null) { // index == 0
             first = next;
         } else {
             prev.next = next;
@@ -112,7 +147,7 @@ public class DoubleLinkedlist<E> extends AbstractList<E> {
             last = prev;
         } else {
             next.prev = prev;
-        }
+        }*/
         size--;
         return node.element;
     }

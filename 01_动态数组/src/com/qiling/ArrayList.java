@@ -127,6 +127,7 @@ public class ArrayList<E> {
      * @param index - 要删除值的索引
      * @return 删除的值
      */
+    // TODO 尝试去优化删除0位置时的效率(使用一个first指针, 始终指向正确的头结点, 不进行后面数组元素移动)
     public E remove(int index) {
         rangeCheck(index);
         E oldElement = elements[index];
