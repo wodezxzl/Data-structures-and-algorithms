@@ -42,6 +42,16 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
             this.element = element;
             this.parent = parent;
         }
+
+        // 是否是叶子节点
+        public boolean isLeaf() {
+            return  left == null && right == null;
+        }
+
+        // 是否有两个子节点
+        public boolean hasTwoChildren() {
+            return left != null && right != null;
+        }
     }
 
     // 该抽象类定义如何处理访问到的元素, 和是否停止遍历
@@ -158,6 +168,37 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         }
 
         return height;
+    }
+
+    // 是否为完全二叉树(利用层序遍历)
+    public boolean isComplete() {
+        Queue<Node<E>> queue = new LinkedList<>();
+        queue.offer(root);
+
+        boolean leaf = false;
+        while (!queue.isEmpty()) {
+            Node<E> node = queue.poll();
+
+            // 要求这个节点为叶子节点但是方法返回的又不是叶子,自然返回false
+            if (leaf && !node.isLeaf()) return false;
+
+            // 先将所有节点入队
+            if (node.left != null) {
+                queue.offer(node.left);
+            } else if (node.right != null) {
+                return false;
+            }
+
+            if (node.right != null) {
+                queue.offer(node.right);
+            } else {
+                // 左子树为空或非空, 右子树为空
+                // 那么之后的节点需要为叶子节点才行
+                leaf = true;
+            }
+        }
+
+        return true;
     }
 
     // 前序遍历
