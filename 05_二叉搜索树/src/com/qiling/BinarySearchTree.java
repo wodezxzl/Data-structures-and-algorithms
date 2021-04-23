@@ -120,6 +120,46 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         return false;
     }
 
+    public int height() {
+        return nodeHeight(root);
+    }
+
+    // 获取任何节点的高度
+    private int nodeHeight(Node<E> node) {
+        /*if (node == null) return 0;
+        return 1 + Math.max(nodeHeight(node.left), nodeHeight(node.right));*/
+
+        // 迭代实现(不过只能算出整棵树的高度)
+        // 使用层序遍历实现
+        if (node == null) return 0;
+
+        int height = 0;
+        // 每一层的元素数量
+        int levelSize = 1;
+        Queue<Node<E>> queue = new LinkedList<>();
+        queue.offer(root);
+
+        // 只要队列不为空就一直遍历, 分别将节点存在的左右子节点入队
+        // 保证先进先出, 一层层从左向右遍历节点
+        while (!queue.isEmpty()) {
+            Node<E> queueNode = queue.poll();
+
+            // 每取出一个元素这一层的数量减1
+            levelSize--;
+
+            if (queueNode.left != null) queue.offer(queueNode.left);
+            if (queueNode.right != null) queue.offer(queueNode.right);
+
+            if (levelSize == 0) {
+                // 等于0之后,说明这一层已经遍历完成
+                height++;
+                levelSize = queue.size();
+            }
+        }
+
+        return height;
+    }
+
     // 前序遍历
     public void preorderTraversal(Visitor<E> visitor) {
         if (visitor == null) return;

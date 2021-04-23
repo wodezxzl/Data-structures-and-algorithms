@@ -19,5 +19,7 @@ public class Main {
                 return false;
             }
         });
+        System.out.println();
+        System.out.println(bst.height());
     }
 }
