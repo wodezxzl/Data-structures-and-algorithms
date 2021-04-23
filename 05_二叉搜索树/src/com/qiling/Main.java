@@ -1,6 +1,7 @@
 package com.qiling;
 
 import com.qiling.printer.BinaryTrees;
+import com.qiling.BinarySearchTree.Visitor;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,6 +12,12 @@ public class Main {
             bst.add(arr[i]);
         }
         BinaryTrees.println(bst);
-        bst.preorderTraversal();
+        bst.levelOrderTraversal(new Visitor<Object>() {
+            @Override
+            public boolean visit(Object element) {
+                System.out.print("_" + element + "_");
+                return false;
+            }
+        });
     }
 }

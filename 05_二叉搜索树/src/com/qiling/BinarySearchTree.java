@@ -3,6 +3,8 @@ package com.qiling;
 import com.qiling.printer.BinaryTreeInfo;
 
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 @SuppressWarnings("unchecked")
 public class BinarySearchTree<E> implements BinaryTreeInfo {
@@ -42,6 +44,13 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         }
     }
 
+    // 该抽象类定义如何处理访问到的元素, 和是否停止遍历
+    public static abstract class Visitor<E> {
+        boolean stop = false;
+        // 返回true表示停止遍历
+        abstract boolean visit(E element);
+    }
+
     // 使用无参构造函数时使用传入类型内置默的认比较方法
     public BinarySearchTree() {
         this(null);
@@ -56,7 +65,7 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     }
 
     public boolean isEmpty() {
-        return false;
+        return size == 0;
     }
 
     public void clear() {}
@@ -112,16 +121,73 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     }
 
     // 前序遍历
-    public void preorderTraversal() {
-        preorderTraversal(root);
+    public void preorderTraversal(Visitor<E> visitor) {
+        if (visitor == null) return;
+        preorderTraversal(root, visitor);
     }
 
-    private void preorderTraversal(Node<E> node) {
-        if (node == null) return;
+    private void preorderTraversal(Node<E> node, Visitor<E> visitor) {
+        if (node == null || visitor.stop) return;
 
-        System.out.println(node.element);
-        preorderTraversal(node.left);
-        preorderTraversal(node.right);
+        visitor.stop = visitor.visit(node.element);
+        preorderTraversal(node.left, visitor);
+        preorderTraversal(node.right, visitor);
+    }
+
+    // 中序遍历
+    public void inorderTraversal(Visitor<E> visitor) {
+        if (visitor == null) return;
+        inorderTraversal(root, visitor);
+    }
+
+    private void inorderTraversal(Node<E> node, Visitor<E> visitor) {
+        if (node == null || visitor.stop) return;
+
+        preorderTraversal(node.left, visitor);
+        // 这个判断是为了阻止不需要的操作
+        if(visitor.stop) return;
+        visitor.stop = visitor.visit(node.element);
+        preorderTraversal(node.right, visitor);
+    }
+
+    // 后序遍历
+    public void postorderTraversal(Visitor<E> visitor) {
+        if (visitor == null) return;
+        postorderTraversal(root, visitor);
+    }
+
+    private void postorderTraversal(Node<E> node, Visitor<E> visitor) {
+        // 这个visitor.stop判断是为了终止递归
+        if (node == null || visitor.stop) return;
+
+        preorderTraversal(node.left, visitor);
+        preorderTraversal(node.right, visitor);
+
+        // 这个判断是为了阻止不需要的操作
+        if(visitor.stop) return;
+        visitor.stop = visitor.visit(node.element);
+    }
+
+    // 层序遍历
+    public void levelOrderTraversal(Visitor<E> visitor){
+        // 使用队列实现
+        if (root == null || visitor == null) return;
+
+        Queue<Node<E>> queue = new LinkedList<>();
+        queue.offer(root);
+
+        // 只要队列不为空就一直遍历, 分别将节点存在的左右子节点入队
+        // 保证先进先出, 一层层从左向右遍历节点
+        while (!queue.isEmpty()) {
+            Node<E> node = queue.poll();
+
+            // 由外界决定如何使用该元素
+            // 返回true就停止遍历
+            if (visitor.visit(node.element)) return;
+
+            if (node.left != null) queue.offer(node.left);
+            if (node.right != null) queue.offer(node.right);
+        }
     }
 
     // 检查传入值是否为空, 为空抛出异常
