@@ -293,4 +293,49 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         // 没有提供比较器方法,将其转换为Comparable类型,如果转换失败说明是你传入数据的问题
         return  ((Comparable<E>) e1).compareTo(e2);
     }
+
+    // 获取给定节点的前驱节点(中序遍历时给定节点的前一个节点称为前驱节点)
+    private Node<E> predecessor(Node<E> node) {
+        if (node == null) return null;
+        Node<E> p = node.left;
+
+        // 左子树不为空, 那么前驱节点一定在左子树
+        if (p != null) {
+            while (p.right != null) {
+                // 一直找到最右边
+                p = p.right;
+            }
+            return p;
+        }
+
+        // 左子树为空, 那么从祖父节点向上寻找
+        // 父节点不为空, 并且当前节点是父节点的左子节点(说明此节点比父节点小)
+        while (node.parent != null && node == node.parent.left) {
+            node = node.parent;
+        }
+
+        // node.parent == null
+        // node == node.parent.right
+        // 这两种情况都可以返回node.parent
+        return node.parent;
+    }
+
+    // 获取给定节点的后继节点(和上面反过来就行)
+    private Node<E> successor(Node<E> node) {
+        if (node == null) return null;
+        Node<E> p = node.right;
+
+        if (p != null) {
+            while (p.left != null) {
+                p = p.left;
+            }
+            return p;
+        }
+
+        while (node.parent != null && node == node.parent.right) {
+            node = node.parent;
+        }
+
+        return node.parent;
+    }
 }
