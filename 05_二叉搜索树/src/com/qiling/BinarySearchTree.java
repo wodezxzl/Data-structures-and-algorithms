@@ -124,7 +124,59 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         size++;
     }
 
-    public void remove(E element) {}
+    public void remove(E element) {
+        remove(node(element));
+    }
+
+    private void remove(Node<E> node) {
+        if (node == null) return;
+
+        size--;
+
+        // 删除的节点度为2时
+        if (node.hasTwoChildren()) {
+            // 找到该节点的前驱或者后继节点, 用该节点来代替要被删除的节点
+            Node<E> successor = successor(node);
+            node.element = successor.element;
+            // 删除后继节点(后面删除node节点就行)
+            // 后继或者前驱节点一定是叶子节点, 这样改变指向后, 就和后面的删除叶子节点逻辑相同了
+            // 所以直接后面就删除了
+            node = successor;
+        }
+
+        // 删除的节点度为1或0时
+        Node<E> replacement = node.left != null ? node.left : node.right;
+
+        if (replacement != null) {
+            // replacement不为null时, 说明node是度为1的节点
+
+            // 更改parent
+            replacement.parent = node.parent;
+            // 更改parent的left或right指向
+            if (node.parent == null) {
+                // node是度为1的节点, 并且是根节点
+                root = replacement;
+            }else if (node == node.parent.left) {
+                node.parent.left = replacement;
+            } else{
+                node.parent.right = replacement;
+            }
+        } else {
+            // 为null时说明node是度为0的节点, 那么直接删除它就可以了
+
+            // 说明这是一个根节点
+            if (node.parent == null) {
+                root = null;
+            } else {
+                // 说明是一个普通叶子节点
+                if (node == node.parent.right) {
+                    node.parent.right = null;
+                } else {
+                    node.parent.left = null;
+                }
+            }
+        }
+    }
 
     public boolean contains(E element) {
         return false;
@@ -337,5 +389,19 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         }
 
         return node.parent;
+    }
+
+    // 根据给的元素找到对应节点
+    private Node<E> node(E element) {
+        Node<E> node = root;
+
+        while (node != null) {
+            int cmp = compare(element, node.element);
+            if (cmp == 0 ) return node;
+            if (cmp > 0) node = node.right;
+            if (cmp < 0) node = node.left;
+        }
+
+        return null;
     }
 }
