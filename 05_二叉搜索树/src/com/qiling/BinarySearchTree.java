@@ -78,7 +78,10 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         return size == 0;
     }
 
-    public void clear() {}
+    public void clear() {
+        root = null;
+        size = 0;
+    }
 
     public void add(E element) {
         elementNotNullCheck(element);
@@ -179,7 +182,7 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     }
 
     public boolean contains(E element) {
-        return false;
+        return node(element) != null;
     }
 
     public int height() {
