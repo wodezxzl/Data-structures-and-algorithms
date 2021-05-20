@@ -1,7 +1,7 @@
 package com.qiling;
 
 import com.qiling.printer.BinaryTrees;
-import com.qiling.BinarySearchTree.Visitor;
+import com.qiling.BinaryTree.Visitor;
 
 public class Main {
     public static void main(String[] args) {
